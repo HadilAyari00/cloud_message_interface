@@ -19,7 +19,13 @@ const MessageInput = () => {
     try {
       console.log("Sending request to:", `${posterURL}/form`);
       console.log("With data:", formData);
-      const response = await axios.post(`${posterURL}/form`, formData);
+
+      const form_data = new FormData();
+      for (let key in formData) {
+        form_data.append(key, formData[key]);
+      }
+
+      const response = await axios.post(`${posterURL}/form`, form_data);
       console.log("Response:", response.data);
     } catch (error) {
       console.log("Error:", error);
