@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const posterURL = process.env.POSTER_URL;
+const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const MessageInput = () => {
   const [formData, setFormData] = useState({

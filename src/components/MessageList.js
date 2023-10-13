@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const receiverURL = process.env.RECEIVER_URL;
+const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 
 const MessageList = () => {
   const [messages, setMessages] = useState([]);
