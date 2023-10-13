@@ -11,8 +11,11 @@ const MessageList = () => {
         console.log("Fetching data from:", `${receiverURL}/server/history`);
         const response = await fetch(`${receiverURL}/server/history`);
 
+        const rawText = await response.text(); // Debugging line
+        console.log("Raw text:", rawText); // Debugging line
+
         if (response.ok) {
-          const data = await response.json();
+          const data = JSON.parse(rawText); // Change this line
           setMessages(data);
         } else {
           console.error(`HTTP Error: ${response.status}`);
