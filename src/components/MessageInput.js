@@ -17,6 +17,8 @@ const MessageInput = () => {
 
   const handleSubmit = async () => {
     try {
+      console.log("Sending request to:", `${posterURL}/form`);
+      console.log("With data:", formData);
       const response = await axios.post(`${posterURL}/form`, formData);
       console.log("Response:", response.data);
     } catch (error) {

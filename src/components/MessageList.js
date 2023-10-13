@@ -8,6 +8,7 @@ const MessageList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("Fetching data from:", `${receiverURL}/server/history`);
         const response = await fetch(`${receiverURL}/server/history`);
         const data = await response.json();
         setMessages(data);
