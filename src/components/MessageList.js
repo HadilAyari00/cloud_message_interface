@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const receiverURL = process.env.REACT_APP_RECEIVER_URL;
+const wsURL = receiverURL.replace(/^http/, "ws");
 
 const MessageList = () => {
   const [messages, setMessages] = useState([]);
@@ -8,24 +9,38 @@ const MessageList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching data from:", `${receiverURL}/server/history`);
         const response = await fetch(`${receiverURL}/server/history`);
-
-        const rawText = await response.text(); // Debugging line
-        console.log("Raw text:", rawText); // Debugging line
-
-        if (response.ok) {
-          const data = JSON.parse(rawText); // Change this line
-          setMessages(data);
-        } else {
-          console.error(`HTTP Error: ${response.status}`);
-        }
+        const data = await response.json();
+        setMessages(data);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
 
     fetchData();
+
+    const ws = new WebSocket(wsURL);
+
+    ws.onopen = () => {
+      console.log("Connected to WebSocket");
+    };
+
+    ws.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket");
+    };
+
+    ws.onerror = (error) => {
+      console.error(`WebSocket Error: ${error}`);
+    };
+
+    return () => {
+      ws.close();
+    };
   }, []);
 
   return (
