@@ -13,7 +13,7 @@ const MessageList = () => {
         const data = await response.json();
         setMessages(data);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error fetching or parsing messages:", error);
       }
     };
 
@@ -26,8 +26,12 @@ const MessageList = () => {
     };
 
     ws.onmessage = (event) => {
-      const newMessage = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      try {
+        const newMessage = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
     };
 
     ws.onclose = () => {
