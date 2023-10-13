@@ -10,8 +10,13 @@ const MessageList = () => {
       try {
         console.log("Fetching data from:", `${receiverURL}/server/history`);
         const response = await fetch(`${receiverURL}/server/history`);
-        const data = await response.json();
-        setMessages(data);
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data);
+        } else {
+          console.error(`HTTP Error: ${response.status}`);
+        }
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
