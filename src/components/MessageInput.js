@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 
 const posterURL = process.env.REACT_APP_POSTER_URL;
@@ -12,7 +12,11 @@ const MessageInput = () => {
 
   const [file, setFile] = useState(null);
 
+  // Create a ref for the file input
+  const fileInputRef = useRef(null);
+
   const handleChange = (e) => {
+    console.log("handleChange triggered");
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
@@ -20,6 +24,12 @@ const MessageInput = () => {
   const handleFileChange = (e) => {
     console.log("handleFileChange triggered");
     setFile(e.target.files[0]);
+  };
+
+  // Programmatically open file dialog
+  const handleUploadClick = () => {
+    console.log("handleUploadClick triggered");
+    fileInputRef.current.click();
   };
 
   const handleFileUpload = async () => {
@@ -49,6 +59,7 @@ const MessageInput = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("handleSubmit triggered");
     try {
       const form_data = new FormData();
       for (let key in formData) {
@@ -87,10 +98,13 @@ const MessageInput = () => {
       />
       <input
         type="file"
+        ref={fileInputRef}
         onChange={handleFileChange}
         onClick={() => console.log("File input clicked")}
+        style={{ display: "none" }}
       />
-      <button onClick={handleFileUpload}>Upload Image</button>
+      <button onClick={handleUploadClick}>Upload Image</button>
+      <button onClick={handleFileUpload}>Handle File Upload</button>
       <button onClick={handleSubmit}>Send</button>
     </div>
   );
