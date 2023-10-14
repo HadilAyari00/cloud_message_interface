@@ -32,8 +32,10 @@ const MessageInput = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileUpload = async () => {
-    console.log("handleFileUpload triggered");
+  const handleSend = async () => {
+    console.log("handleSend triggered");
+
+    // First, try uploading the file if it exists
     if (file) {
       console.log("Attempting to upload file:", file);
       try {
@@ -52,14 +54,11 @@ const MessageInput = () => {
         console.log("File uploaded successfully.");
       } catch (error) {
         console.log("File upload failed:", error);
+        return; // Stop further execution if file upload fails
       }
-    } else {
-      console.log("No file selected for upload.");
     }
-  };
 
-  const handleSubmit = async () => {
-    console.log("handleSubmit triggered");
+    // Then, send the message
     try {
       const form_data = new FormData();
       for (let key in formData) {
@@ -67,9 +66,9 @@ const MessageInput = () => {
       }
 
       const response = await axios.post(`${posterURL}/form`, form_data);
-      console.log("Response:", response.data);
+      console.log("Form submit Response:", response.data);
     } catch (error) {
-      console.log("Error:", error);
+      console.log("Form submit failed:", error);
     }
   };
 
@@ -100,12 +99,10 @@ const MessageInput = () => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        onClick={() => console.log("File input clicked")}
         style={{ display: "none" }}
       />
-      <button onClick={handleUploadClick}>Upload Image</button>
-      <button onClick={handleFileUpload}>Handle File Upload</button>
-      <button onClick={handleSubmit}>Send</button>
+      <button onClick={handleUploadClick}>Select Image</button>
+      <button onClick={handleSend}>Send</button>
     </div>
   );
 };
