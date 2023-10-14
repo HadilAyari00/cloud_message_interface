@@ -10,16 +10,39 @@ const MessageInput = () => {
     message: "",
   });
 
+  const [file, setFile] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleFileUpload = async () => {
+    if (file) {
+      try {
+        const response = await axios.get(`${posterURL}/upload-url`, {
+          params: { "content-type": file.type },
+        });
+        const { signed_url } = response.data;
+
+        await axios.put(signed_url, file, {
+          headers: {
+            "Content-Type": file.type,
+          },
+        });
+        console.log("File uploaded successfully.");
+      } catch (error) {
+        console.log("File upload failed:", error);
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     try {
-      console.log("Sending request to:", `${posterURL}/form`);
-      console.log("With data:", formData);
-
       const form_data = new FormData();
       for (let key in formData) {
         form_data.append(key, formData[key]);
@@ -55,6 +78,8 @@ const MessageInput = () => {
         onChange={handleChange}
         placeholder="Message"
       />
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleFileUpload}>Upload Image</button>
       <button onClick={handleSubmit}>Send</button>
     </div>
   );
