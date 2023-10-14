@@ -18,10 +18,12 @@ const MessageInput = () => {
   };
 
   const handleFileChange = (e) => {
+    console.log("handleFileChange triggered");
     setFile(e.target.files[0]);
   };
 
   const handleFileUpload = async () => {
+    console.log("handleFileUpload triggered");
     if (file) {
       console.log("Attempting to upload file:", file);
       try {
