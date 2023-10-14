@@ -85,7 +85,11 @@ const MessageInput = () => {
         onChange={handleChange}
         placeholder="Message"
       />
-      <input type="file" onChange={handleFileChange} />
+      <input
+        type="file"
+        onChange={handleFileChange}
+        onClick={() => console.log("File input clicked")}
+      />
       <button onClick={handleFileUpload}>Upload Image</button>
       <button onClick={handleSubmit}>Send</button>
     </div>
