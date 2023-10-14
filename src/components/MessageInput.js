@@ -38,7 +38,7 @@ const MessageInput = () => {
 
         try {
           const response = await axios.get(`${posterURL}/upload-url`, {
-            params: { "content-type": file.type },
+            params: { content_type: file.type },
           });
           console.log("After signed_url request");
 
