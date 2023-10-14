@@ -28,24 +28,34 @@ const MessageInput = () => {
 
   const handleSend = async () => {
     try {
+      console.log("handleSend triggered");
+
       if (file) {
-        const response = await axios.get(`${posterURL}/upload-url`, {
-          params: { "content-type": file.type },
-        });
+        console.log(
+          `Attempting to upload file: ${file.name}, content-type: ${file.type}`
+        );
+        console.log("About to request signed_url");
 
-        const { signed_url } = response.data;
-        console.log("Received signed_url:", signed_url);
+        try {
+          const response = await axios.get(`${posterURL}/upload-url`, {
+            params: { "content-type": file.type },
+          });
+          console.log("After signed_url request");
 
-        const headers = {
-          "Content-Type": file.type,
-        };
-        console.log("Using headers:", headers);
+          const { signed_url } = response.data;
+          console.log("Received signed_url:", signed_url);
 
-        await axios.put(signed_url, file, {
-          headers: headers,
-        });
+          const headers = {
+            "Content-Type": file.type,
+          };
+          console.log("Using headers:", headers);
 
-        console.log("File uploaded successfully.");
+          await axios.put(signed_url, file, { headers: headers });
+          console.log("File uploaded successfully.");
+        } catch (error) {
+          console.log("Error in getting signed_url or uploading file:", error);
+          return;
+        }
       }
 
       const form_data = new FormData();
@@ -56,7 +66,7 @@ const MessageInput = () => {
       await axios.post(`${posterURL}/form`, form_data);
       console.log("Form submit successful.");
     } catch (error) {
-      console.log("Error occurred:", error);
+      console.log("Error in handleSend function:", error);
     }
   };
 
