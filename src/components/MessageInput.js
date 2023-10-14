@@ -54,6 +54,9 @@ const MessageInput = () => {
           console.log("File uploaded successfully.");
         } catch (error) {
           console.log("Error in getting signed_url or uploading file:", error);
+          if (error.response) {
+            console.log("Server Response:", error.response.data);
+          }
           return;
         }
       }
