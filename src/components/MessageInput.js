@@ -11,8 +11,6 @@ const MessageInput = () => {
   });
 
   const [file, setFile] = useState(null);
-
-  // Create a ref for the file input
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
@@ -26,7 +24,6 @@ const MessageInput = () => {
     setFile(e.target.files[0]);
   };
 
-  // Programmatically open file dialog
   const handleUploadClick = () => {
     console.log("handleUploadClick triggered");
     fileInputRef.current.click();
@@ -34,41 +31,33 @@ const MessageInput = () => {
 
   const handleSend = async () => {
     console.log("handleSend triggered");
-
-    // First, try uploading the file if it exists
-    if (file) {
-      console.log("Attempting to upload file:", file);
-      try {
-        const response = await axios.get(`${posterURL}/upload-url`, {
+    try {
+      if (file) {
+        console.log("Attempting to upload file:", file);
+        const {
+          data: { signed_url },
+        } = await axios.get(`${posterURL}/upload-url`, {
           params: { "content-type": file.type },
         });
-        console.log("Signed URL:", response.data);
-        const { signed_url } = response.data;
+        console.log("Signed URL:", signed_url);
 
         const uploadResponse = await axios.put(signed_url, file, {
           headers: {
             "Content-Type": file.type,
           },
         });
-        console.log("Upload Response:", uploadResponse);
-        console.log("File uploaded successfully.");
-      } catch (error) {
-        console.log("File upload failed:", error);
-        return; // Stop further execution if file upload fails
+        console.log("Upload Response:", uploadResponse.data);
       }
-    }
 
-    // Then, send the message
-    try {
       const form_data = new FormData();
-      for (let key in formData) {
+      for (const key in formData) {
         form_data.append(key, formData[key]);
       }
 
       const response = await axios.post(`${posterURL}/form`, form_data);
       console.log("Form submit Response:", response.data);
     } catch (error) {
-      console.log("Form submit failed:", error);
+      console.log("An error occurred:", error);
     }
   };
 
