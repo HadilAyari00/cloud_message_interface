@@ -14,57 +14,49 @@ const MessageInput = () => {
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
-    console.log("handleChange triggered");
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleFileChange = (e) => {
-    console.log("handleFileChange triggered");
     setFile(e.target.files[0]);
   };
 
   const handleUploadClick = () => {
-    console.log("handleUploadClick triggered");
     fileInputRef.current.click();
   };
 
   const handleSend = async () => {
-    console.log("handleSend triggered");
-
-    if (file) {
-      console.log(
-        `Attempting to upload file: ${file.name}, content-type: ${file.type}`
-      );
-      try {
+    try {
+      if (file) {
         const response = await axios.get(`${posterURL}/upload-url`, {
           params: { "content-type": file.type },
         });
 
         const { signed_url } = response.data;
+        console.log("Received signed_url:", signed_url);
+
+        const headers = {
+          "Content-Type": file.type,
+        };
+        console.log("Using headers:", headers);
 
         await axios.put(signed_url, file, {
-          headers: { "Content-Type": file.type },
+          headers: headers,
         });
 
         console.log("File uploaded successfully.");
-      } catch (error) {
-        console.log("File upload failed:", error);
-        console.log("Stopping further execution.");
-        return;
       }
-    }
 
-    try {
       const form_data = new FormData();
       for (let key in formData) {
         form_data.append(key, formData[key]);
       }
 
-      const response = await axios.post(`${posterURL}/form`, form_data);
-      console.log("Form submit Response:", response.data);
+      await axios.post(`${posterURL}/form`, form_data);
+      console.log("Form submit successful.");
     } catch (error) {
-      console.log("Form submit failed:", error);
+      console.log("Error occurred:", error);
     }
   };
 
