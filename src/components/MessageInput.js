@@ -26,21 +26,10 @@ const MessageInput = () => {
     fileInputRef.current.click();
   };
 
-  const axiosWithRetry = async (url, config, retries = 3, timeout = 1000) => {
-    try {
-      return await axios(url, config);
-    } catch (error) {
-      if (retries === 0) {
-        throw new Error("Max retries reached");
-      }
-      await new Promise((resolve) => setTimeout(resolve, timeout));
-      return await axiosWithRetry(url, config, retries - 1, timeout);
-    }
-  };
-
   const handleSend = async () => {
     try {
-      console.log("handleSend triggered");
+      let isFileUploaded = false;
+      let isFormSubmitted = false;
 
       if (file) {
         try {
@@ -49,14 +38,14 @@ const MessageInput = () => {
           });
 
           const { signed_url } = response.data;
-          console.log("response.data ", response.data);
-          console.log("signed url ", signed_url);
           const headers = {
             "Content-Type": file.type,
           };
 
           await axios.put(signed_url, file, { headers: headers });
           console.log("File uploaded successfully.");
+          isFileUploaded = true;
+          setFile(null);
         } catch (error) {
           console.log("Error while uploading the file: ", error);
           if (error.response) {
@@ -66,13 +55,24 @@ const MessageInput = () => {
         }
       }
 
-      const form_data = new FormData();
-      for (let key in formData) {
-        form_data.append(key, formData[key]);
+      if (formData.idSender || formData.idReceiver || formData.message) {
+        const form_data = new FormData();
+        for (let key in formData) {
+          form_data.append(key, formData[key]);
+        }
+        await axios.post(`${posterURL}/form`, form_data);
+        isFormSubmitted = true;
       }
 
-      await axios.post(`${posterURL}/form`, form_data);
-      console.log("Form submit successful.");
+      if (isFileUploaded && isFormSubmitted) {
+        console.log("Both file and form submitted successfully.");
+      } else if (isFileUploaded) {
+        console.log("File uploaded successfully.");
+      } else if (isFormSubmitted) {
+        console.log("Form submitted successfully.");
+      } else {
+        console.log("Nothing to send.");
+      }
     } catch (error) {
       console.log("Error in handleSend function:", error);
     }
@@ -101,6 +101,7 @@ const MessageInput = () => {
         onChange={handleChange}
         placeholder="Message"
       />
+      <div>{file ? `Selected File: ${file.name}` : "No file selected."}</div>
       <input
         type="file"
         ref={fileInputRef}
