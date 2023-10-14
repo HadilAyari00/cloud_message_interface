@@ -31,33 +31,21 @@ const MessageInput = () => {
       console.log("handleSend triggered");
 
       if (file) {
-        console.log(
-          `Attempting to upload file: ${file.name}, content-type: ${file.type}`
-        );
-        console.log("About to request signed_url");
+        const response = await axios.get(`${posterURL}/upload-url`, {
+          params: { content_type: file.type },
+        });
+
+        const { signed_url } = response.data;
 
         try {
-          const response = await axios.get(`${posterURL}/upload-url`, {
-            params: { content_type: file.type },
+          await axios.put(signed_url, file, {
+            headers: {
+              "Content-Type": file.type,
+            },
           });
-          console.log("After signed_url request");
-
-          const { signed_url } = response.data;
-          console.log("Received signed_url:", signed_url);
-
-          const headers = {
-            "Content-Type": file.type,
-          };
-          console.log("Using headers:", headers);
-
-          await axios.put(signed_url, file, { headers: headers });
           console.log("File uploaded successfully.");
         } catch (error) {
-          console.log("Error in getting signed_url or uploading file:", error);
-          if (error.response) {
-            console.log("Server Response:", error.response.data);
-          }
-          return;
+          console.log("File upload failed:", error);
         }
       }
 
@@ -66,8 +54,14 @@ const MessageInput = () => {
         form_data.append(key, formData[key]);
       }
 
-      await axios.post(`${posterURL}/form`, form_data);
-      console.log("Form submit successful.");
+      await axios
+        .post(`${posterURL}/form`, form_data)
+        .then((response) => {
+          console.log("Form submit successful.", response.data);
+        })
+        .catch((error) => {
+          console.log("Form submit failed:", error);
+        });
     } catch (error) {
       console.log("Error in handleSend function:", error);
     }
