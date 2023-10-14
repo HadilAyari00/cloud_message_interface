@@ -31,33 +31,44 @@ const MessageInput = () => {
 
   const handleSend = async () => {
     console.log("handleSend triggered");
-    try {
-      if (file) {
-        console.log("Attempting to upload file:", file);
-        const {
-          data: { signed_url },
-        } = await axios.get(`${posterURL}/upload-url`, {
+
+    // File Upload
+    if (file) {
+      console.log(
+        `Attempting to upload file: ${file.name}, content-type: ${file.type}`
+      );
+      try {
+        const response = await axios.get(`${posterURL}/upload-url`, {
           params: { "content-type": file.type },
         });
-        console.log("Signed URL:", signed_url);
+        console.log("Received signed URL:", response.data);
+
+        const { signed_url } = response.data;
 
         const uploadResponse = await axios.put(signed_url, file, {
-          headers: {
-            "Content-Type": file.type,
-          },
+          headers: { "Content-Type": file.type },
         });
-        console.log("Upload Response:", uploadResponse.data);
-      }
 
+        console.log("Upload Response:", uploadResponse.data);
+        console.log("File uploaded successfully.");
+      } catch (error) {
+        console.log("File upload failed:", error);
+        console.log("Stopping further execution.");
+        return;
+      }
+    }
+
+    // Message Send
+    try {
       const form_data = new FormData();
-      for (const key in formData) {
+      for (let key in formData) {
         form_data.append(key, formData[key]);
       }
 
       const response = await axios.post(`${posterURL}/form`, form_data);
       console.log("Form submit Response:", response.data);
     } catch (error) {
-      console.log("An error occurred:", error);
+      console.log("Form submit failed:", error);
     }
   };
 
