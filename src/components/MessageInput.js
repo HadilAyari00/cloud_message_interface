@@ -43,23 +43,25 @@ const MessageInput = () => {
       console.log("handleSend triggered");
 
       if (file) {
-        const response = await axiosWithRetry(`${posterURL}/upload-url`, {
-          params: { content_type: file.type },
-        });
-
-        const { signed_url } = response.data;
-
         try {
-          await fetch(signed_url, {
-            method: "PUT",
-            body: file,
-            headers: {
-              "Content-Type": file.type,
-            },
+          const response = await axios.get(`${posterURL}/upload-url`, {
+            params: { content_type: file.type },
           });
+
+          const { signed_url } = response.data;
+
+          const headers = {
+            "Content-Type": file.type,
+          };
+
+          await axios.put(signed_url, file, { headers: headers });
           console.log("File uploaded successfully.");
         } catch (error) {
-          console.log("File upload failed:", error);
+          console.log("Error while uploading the file: ", error);
+          if (error.response) {
+            console.log("Server Response:", error.response.data);
+          }
+          return;
         }
       }
 
@@ -68,10 +70,7 @@ const MessageInput = () => {
         form_data.append(key, formData[key]);
       }
 
-      await axiosWithRetry(`${posterURL}/form`, {
-        method: "POST",
-        data: form_data,
-      });
+      await axios.post(`${posterURL}/form`, form_data);
       console.log("Form submit successful.");
     } catch (error) {
       console.log("Error in handleSend function:", error);
