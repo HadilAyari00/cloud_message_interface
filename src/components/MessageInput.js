@@ -32,7 +32,6 @@ const MessageInput = () => {
   const handleSend = async () => {
     console.log("handleSend triggered");
 
-    // File Upload
     if (file) {
       console.log(
         `Attempting to upload file: ${file.name}, content-type: ${file.type}`
@@ -41,15 +40,13 @@ const MessageInput = () => {
         const response = await axios.get(`${posterURL}/upload-url`, {
           params: { "content-type": file.type },
         });
-        console.log("Received signed URL:", response.data);
 
         const { signed_url } = response.data;
 
-        const uploadResponse = await axios.put(signed_url, file, {
+        await axios.put(signed_url, file, {
           headers: { "Content-Type": file.type },
         });
 
-        console.log("Upload Response:", uploadResponse.data);
         console.log("File uploaded successfully.");
       } catch (error) {
         console.log("File upload failed:", error);
@@ -58,7 +55,6 @@ const MessageInput = () => {
       }
     }
 
-    // Message Send
     try {
       const form_data = new FormData();
       for (let key in formData) {
