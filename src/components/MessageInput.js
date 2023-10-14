@@ -23,21 +23,26 @@ const MessageInput = () => {
 
   const handleFileUpload = async () => {
     if (file) {
+      console.log("Attempting to upload file:", file);
       try {
         const response = await axios.get(`${posterURL}/upload-url`, {
           params: { "content-type": file.type },
         });
+        console.log("Signed URL:", response.data);
         const { signed_url } = response.data;
 
-        await axios.put(signed_url, file, {
+        const uploadResponse = await axios.put(signed_url, file, {
           headers: {
             "Content-Type": file.type,
           },
         });
+        console.log("Upload Response:", uploadResponse);
         console.log("File uploaded successfully.");
       } catch (error) {
         console.log("File upload failed:", error);
       }
+    } else {
+      console.log("No file selected for upload.");
     }
   };
 
