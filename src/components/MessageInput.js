@@ -26,19 +26,33 @@ const MessageInput = () => {
     fileInputRef.current.click();
   };
 
+  const axiosWithRetry = async (url, config, retries = 3, timeout = 1000) => {
+    try {
+      return await axios(url, config);
+    } catch (error) {
+      if (retries === 0) {
+        throw new Error("Max retries reached");
+      }
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+      return await axiosWithRetry(url, config, retries - 1, timeout);
+    }
+  };
+
   const handleSend = async () => {
     try {
       console.log("handleSend triggered");
 
       if (file) {
-        const response = await axios.get(`${posterURL}/upload-url`, {
+        const response = await axiosWithRetry(`${posterURL}/upload-url`, {
           params: { content_type: file.type },
         });
 
         const { signed_url } = response.data;
 
         try {
-          await axios.put(signed_url, file, {
+          await fetch(signed_url, {
+            method: "PUT",
+            body: file,
             headers: {
               "Content-Type": file.type,
             },
@@ -54,14 +68,11 @@ const MessageInput = () => {
         form_data.append(key, formData[key]);
       }
 
-      await axios
-        .post(`${posterURL}/form`, form_data)
-        .then((response) => {
-          console.log("Form submit successful.", response.data);
-        })
-        .catch((error) => {
-          console.log("Form submit failed:", error);
-        });
+      await axiosWithRetry(`${posterURL}/form`, {
+        method: "POST",
+        data: form_data,
+      });
+      console.log("Form submit successful.");
     } catch (error) {
       console.log("Error in handleSend function:", error);
     }
