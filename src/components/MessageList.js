@@ -9,31 +9,6 @@ class MessageList extends React.Component {
     this.state = {
       messages: [],
     };
-    console.log(wsURL)
-    this.socket = io("wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io");
-
-
-    this.socket.on("connect", () => {
-      console.log("Connected to socket server.");
-    });
-
-    this.socket.on("newMessage", (message) => {
-      
-      const data = JSON.parse(message)
-      console.log("New message received:", data);
-      this.setState((prevState) => ({
-        messages: [...prevState.messages, data],
-      }));
-    });
-
-    //scroll to bottom after new message is received
-    this.scrollToBottom = () => {
-      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-    };
-
-    this.socket.on("disconnect", () => {
-      console.log("Disconnected from socket server.");
-    });
   }
 
   componentDidMount() {
@@ -53,6 +28,36 @@ class MessageList extends React.Component {
     };
 
     fetchData();
+
+
+    this.socket = io("wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io");
+
+
+    this.socket.on("connect", () => {
+      console.log("Connected to socket server.");
+    });
+
+    this.socket.on("newMessage", (message) => {
+      console.log("New message received:", message);
+      const data = JSON.parse(message)
+      console.log("New message received:", data);
+      this.setState((prevState) => ({
+        messages: [...prevState.messages, data],
+      }));
+    });
+
+    this.socket.on("disconnect", () => {
+      console.log("Disconnected from socket server.");
+    });
+  }
+
+  componentWillUnmount() {
+    this.socket.disconnect();
+  }
+
+  componentDidUpdate() {
+    const element = document.querySelector(".conversation-h");
+    element.scrollTop = element.scrollHeight;
   }
 
   render() {
