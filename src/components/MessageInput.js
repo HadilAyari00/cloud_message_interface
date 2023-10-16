@@ -5,9 +5,9 @@ const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const MessageInput = () => {
   const [formData, setFormData] = useState({
-    idConversation: "",
+    user_id: "",
     text: "",
-    image: null,
+    url: "",
   });
 
   const [file, setFile] = useState(null);
@@ -54,14 +54,17 @@ const MessageInput = () => {
           return;
         }
       }
-      if (formData.idConversation || formData.text) {
+      if (formData.user_id || formData.text) {
         const form_data = new FormData();
         for (let key in formData) {
           form_data.append(key, formData[key]);
         }
-        console.log("form_data: ", form_data)
+        console.log("form_data: ", formData)
         try {
-          await axios.post(`${posterURL}/convsersations/${formData.idConversation}/messages`, form_data);  
+          const headers = {
+            "Content-Type": "application/json",
+          };
+          await axios.post(`${posterURL}/conversations/652924bdc5faf4a0ad9e9ab0/messages`, formData);  
         } catch (error) {
           console.log("Error while submitting the form: ", error);
           return;
