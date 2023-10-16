@@ -24,11 +24,40 @@
 
 .conversation-h {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     margin: 0 auto;
     text-align: center;
     border: 2px black solid;
     height: 70vh;
     width: 70vw;
     overflow: scroll;
+}
+
+.message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1vh auto;
+    width: 90%;
+}
+
+.msg-time {
+    font-size: 1vh;
+    color: rgba(20, 20, 20);
+    font-weight: bold;
+    position: relative;
+    left: -2vw;
+}
+
+.msg-sender,
+.msg-text {
+    display: flex;
+    align-items: center;
+    margin: 1rem;
+}
+
+.msg-sender>p,
+.msg-text>p {
+    color: blue;
+    padding-left: 1rem;
 }

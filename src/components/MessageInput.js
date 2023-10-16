@@ -5,9 +5,9 @@ const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const MessageInput = () => {
   const [formData, setFormData] = useState({
-    idSender: "",
-    idReceiver: "",
-    message: "",
+    idConversation: "",
+    text: "",
+    image: "",
   });
 
   const [file, setFile] = useState(null);
@@ -55,12 +55,17 @@ const MessageInput = () => {
         }
       }
 
-      if (formData.idSender || formData.idReceiver || formData.message) {
+      if (formData.idConversation || formData.text || formData.image) {
         const form_data = new FormData();
         for (let key in formData) {
           form_data.append(key, formData[key]);
         }
-        await axios.post(`${posterURL}/form`, form_data);
+        try {
+          await axios.post(`${posterURL}/form`, form_data);  
+        } catch (error) {
+          return;
+        }
+        
         isFormSubmitted = true;
       }
 
@@ -83,14 +88,14 @@ const MessageInput = () => {
       <input
         type="text"
         name="Conversation ID"
-        value={formData.idReceiver}
+        defaultValue={formData.idConversation}
         onChange={handleChange}
-        placeholder="Receiver ID"
+        placeholder="Conversation ID"
       />
       <input
         type="text"
         name="message"
-        value={formData.message}
+        defaultValue={formData.text}
         onChange={handleChange}
         placeholder="Message"
       />

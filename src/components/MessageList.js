@@ -57,7 +57,13 @@ const MessageList = () => {
       <h1 className="conversation">Message History</h1>
       <ul className="conversation-h">
         {messages.map((message, index) => {
-          return (<li key={index}>{message}</li>)
+          return (
+          <li className="message-container" key={index}>
+            <p className="msg-time">{message.timestamp.split('T')[0].slice(5, 10)} : {message.timestamp.split('T')[1].slice(0, 5)}</p>
+            <div className="msg-sender">Sent by : <p>{message.sender}</p></div>
+            <div className="msg-text">Saying : <p>{message.text}</p></div>
+            <img src={message.image} default="img"/>
+            </li>)
         })}
 
       </ul>
