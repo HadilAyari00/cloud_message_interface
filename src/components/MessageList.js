@@ -9,7 +9,12 @@ const MessageList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${receiverURL}/server/history`);
+        const response = await fetch(`${receiverURL}/server/history`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const data = await response.json();
         setMessages(data);
       } catch (error) {
