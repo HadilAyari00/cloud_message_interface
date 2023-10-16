@@ -1,14 +1,17 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const MessageInput = () => {
+  const { userID } = useParams();
   const [formData, setFormData] = useState({
     user_id: "",
     text: "",
     url: "",
   });
+  formData.user_id = userID;
 
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -61,12 +64,15 @@ const MessageInput = () => {
           const headers = {
             "Content-Type": "application/json",
           };
-          await axios.post(`${posterURL}/conversations/652924bdc5faf4a0ad9e9ab0/messages`, formData);  
+          await axios.post(
+            `${posterURL}/conversations/652924bdc5faf4a0ad9e9ab0/messages`,
+            formData
+          );
         } catch (error) {
           console.log("Error while submitting the form: ", error);
           return;
         }
-        
+
         isFormSubmitted = true;
       }
 
@@ -108,7 +114,9 @@ const MessageInput = () => {
         style={{ display: "none" }}
       />
       <button onClick={handleUploadClick}>Select Image</button>
-      <button className="send" onClick={handleSend}>Send</button>
+      <button className="send" onClick={handleSend}>
+        Send
+      </button>
     </div>
   );
 };
