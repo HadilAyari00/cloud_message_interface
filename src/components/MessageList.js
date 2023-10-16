@@ -51,9 +51,10 @@ const MessageList = () => {
     <div>
       <h1 className="conversation">Message History</h1>
       <ul className="conversation-h">
-        [messages.map((message, index) => (
+        {messages.map((message, index) => (
           <li key={index}>{message}</li>
-        ))]
+        ))}
+
       </ul>
     </div>
   );
