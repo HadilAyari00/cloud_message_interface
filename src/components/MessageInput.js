@@ -36,7 +36,7 @@ const MessageInput = () => {
           const response = await axios.get(`${posterURL}/upload-url`, {
             params: { content_type: file.type },
           });
-
+          console.log("Response from server:", response.data);
           const { signed_url } = response.data;
           const headers = {
             "Content-Type": file.type,
@@ -44,6 +44,8 @@ const MessageInput = () => {
 
           await axios.put(signed_url, file, { headers: headers });
           console.log("File uploaded successfully.");
+          formData.url = signed_url.split("?")[0];
+          console.log("formData:", formData);
           isFileUploaded = true;
           setFile(null);
         } catch (error) {
