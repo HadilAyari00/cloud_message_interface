@@ -5,7 +5,7 @@ const wsURL = receiverURL.replace(/^http/, "ws");
 import io from "socket.io-client";
 
 const MessageList = () => {
-  const socket = io("ws://localhost:8080");
+  const socket = io(wsURL+":8080");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const MessageList = () => {
       console.log("Connected to socket server.");
     });
 
-    socket.on("message", (message) => {
+    socket.on("newMessage", (message) => {
       setMessages((prevState) => [...prevState, message]);
     });
 
