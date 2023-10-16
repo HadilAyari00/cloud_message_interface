@@ -33,6 +33,7 @@ const MessageList = () => {
     ws.onmessage = (event) => {
       try {
         const newMessage = JSON.parse(event.data);
+        console.log("Message received from WebSocket: ", newMessage);
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);

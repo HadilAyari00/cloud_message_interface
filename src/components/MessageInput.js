@@ -7,7 +7,7 @@ const MessageInput = () => {
   const [formData, setFormData] = useState({
     idConversation: "",
     text: "",
-    image: "",
+    image: null,
   });
 
   const [file, setFile] = useState(null);
@@ -54,15 +54,16 @@ const MessageInput = () => {
           return;
         }
       }
-
-      if (formData.idConversation || formData.text || formData.image) {
+      if (formData.idConversation || formData.text) {
         const form_data = new FormData();
         for (let key in formData) {
           form_data.append(key, formData[key]);
         }
+        console.log("form_data: ", form_data)
         try {
-          await axios.post(`${posterURL}/form`, form_data);  
+          await axios.post(`${posterURL}/convsersations/${formData.idConversation}/messages`, form_data);  
         } catch (error) {
+          console.log("Error while submitting the form: ", error);
           return;
         }
         
@@ -87,14 +88,14 @@ const MessageInput = () => {
     <div className="inputs">
       <input
         type="text"
-        name="Conversation ID"
+        name="idConversation"
         defaultValue={formData.idConversation}
         onChange={handleChange}
         placeholder="Conversation ID"
       />
       <input
         type="text"
-        name="message"
+        name="text"
         defaultValue={formData.text}
         onChange={handleChange}
         placeholder="Message"
