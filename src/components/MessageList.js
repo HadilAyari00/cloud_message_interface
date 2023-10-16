@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 
 const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 const wsURL = receiverURL.replace(/^http/, "ws");
+import io from "socket.io-client";
 
 const MessageList = () => {
+  const socket = io("ws://localhost:8080");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("receiverURL: ", receiverURL)
+      console.log("wsURL: ", wsURL);
       try {
         const response = await fetch(`${receiverURL}/server/history`, {
           method: "GET",
@@ -24,33 +28,21 @@ const MessageList = () => {
 
     fetchData();
 
-    const ws = new WebSocket(wsURL);
+    socket.on("connect", () => {
+      console.log("Connected to socket server.");
+    });
 
-    ws.onopen = () => {
-      console.log("Connected to WebSocket");
-    };
+    socket.on("message", (message) => {
+      setMessages((prevState) => [...prevState, message]);
+    });
 
-    ws.onmessage = (event) => {
-      try {
-        const newMessage = JSON.parse(event.data);
-        console.log("Message received from WebSocket: ", newMessage);
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from WebSocket");
-    };
-
-    ws.onerror = (error) => {
-      console.error(`WebSocket Error: ${error}`);
-    };
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket server.");
+    });
 
     return () => {
-      ws.close();
-    };
+      socket.off("message");
+    }
   }, []);
 
   return (
