@@ -86,8 +86,8 @@ const MessageInput = () => {
     <div className="inputs">
       <input
         type="text"
-        name="idConversation"
-        defaultValue={formData.idConversation}
+        name="user_id"
+        defaultValue={formData.user_id}
         onChange={handleChange}
         placeholder="Conversation ID"
       />
