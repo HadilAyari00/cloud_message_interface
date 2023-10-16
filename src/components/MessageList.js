@@ -49,8 +49,8 @@ const MessageList = () => {
 
   return (
     <div>
-      <h1>Message History</h1>
-      <ul>
+      <h1 className="conversation">Message History</h1>
+      <ul className="conversation-h">
         {messages.map((message, index) => (
           <li key={index}>{message}</li>
         ))}

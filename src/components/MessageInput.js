@@ -79,17 +79,10 @@ const MessageInput = () => {
   };
 
   return (
-    <div>
+    <div className="inputs">
       <input
         type="text"
-        name="idSender"
-        value={formData.idSender}
-        onChange={handleChange}
-        placeholder="Sender ID"
-      />
-      <input
-        type="text"
-        name="idReceiver"
+        name="Conversation ID"
         value={formData.idReceiver}
         onChange={handleChange}
         placeholder="Receiver ID"
@@ -109,7 +102,7 @@ const MessageInput = () => {
         style={{ display: "none" }}
       />
       <button onClick={handleUploadClick}>Select Image</button>
-      <button onClick={handleSend}>Send</button>
+      <button className="send" onClick={handleSend}>Send</button>
     </div>
   );
 };
