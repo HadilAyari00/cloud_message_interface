@@ -55,11 +55,6 @@ const MessageInput = () => {
         }
       }
       if (formData.user_id || formData.text) {
-        const form_data = new FormData();
-        for (let key in formData) {
-          form_data.append(key, formData[key]);
-        }
-        console.log("form_data: ", formData)
         try {
           const headers = {
             "Content-Type": "application/json",
