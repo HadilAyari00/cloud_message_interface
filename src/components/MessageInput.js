@@ -84,8 +84,10 @@ const MessageInput = () => {
 
       if (isFileUploaded && isFormSubmitted) {
         console.log("Both file and form submitted successfully.");
+        setFile(null);
       } else if (isFileUploaded) {
         console.log("File uploaded successfully.");
+        setFile(null);
       } else if (isFormSubmitted) {
         console.log("Form submitted successfully.");
       } else {
