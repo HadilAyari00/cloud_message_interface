@@ -3,6 +3,11 @@ import io from "socket.io-client";
 import axios from "axios";
 import { withRouter } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+
 const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 const posterURL = process.env.REACT_APP_POSTER_URL;
 const wsURL = process.env.REACT_APP_WS_URL;
@@ -32,10 +37,10 @@ class MessageList extends React.Component {
           },
         });
         const data = await response.json();
-        
+
         const d = new Date();
-        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-        const currentTime = new Date(utc + (3600000 * '+0'));
+        const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+        const currentTime = new Date(utc + 3600000 * "+0");
         console.log(currentTime);
 
         console.log("CURRENT TIME:", currentTime);
@@ -105,7 +110,7 @@ class MessageList extends React.Component {
     try {
       await axios.put(
         `${posterURL}/conversations/${conversationId}/messages/${messageId}/read`,
-        {"user_id": this.props.userID},
+        { user_id: this.props.userID }
       );
     } catch (error) {
       console.error("Error marking the message as read:", error);
@@ -119,21 +124,138 @@ class MessageList extends React.Component {
     return (
       <div>
         <h1 className="conversation">Message History</h1>
-        <ul className="conversation-h">
+        <ul
+          className="conversation-h"
+          style={{ listStyleType: "none", padding: 0 }}
+        >
           {this.state.messages.map((message, index) => {
             return (
-              <li className="message-container" key={index}>
-                <p className="msg-time">
+              <div key={index}>
+                <div style={{ fontWeight: "bold", margin: "10px 0" }}>
+                  {message.sender}
+                </div>
+                <li
+                  className="message-container"
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "15px",
+                    margin: "5px 0",
+                    padding: "10px",
+                  }}
+                >
+                  <div
+                    className="msg-text"
+                    style={{
+                      backgroundColor: "#f1f1f1",
+                      borderRadius: "10px",
+                      padding: "5px",
+                    }}
+                  >
+                    {message.text}
+                  </div>
+                  <p
+                    className="msg-time"
+                    style={{
+                      color: "gray",
+                      textAlign: "right",
+                      margin: "5px 0",
+                    }}
+                  >
+                    {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
+                    {message.timestamp.split("T")[1].slice(0, 5)}
+                  </p>
+                </li>
+                {message.image && (
+                  <li
+                    className="message-image-container"
+                    style={{
+                      border: "1px solid #ccc",
+                      borderRadius: "15px",
+                      margin: "5px 0",
+                      padding: "10px",
+                    }}
+                  >
+                    <img
+                      src={message.image}
+                      alt="message"
+                      style={{ borderRadius: "10px", maxWidth: "200px" }}
+                    />
+                    <p
+                      className="msg-time"
+                      style={{
+                        color: "gray",
+                        textAlign: "right",
+                        margin: "5px 0",
+                      }}
+                    >
+                      {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
+                      {message.timestamp.split("T")[1].slice(0, 5)}
+                    </p>
+                  </li>
+                )}
+              </div>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
+  render() {
+    return (
+      <div>
+        <h1 className="conversation">Message History</h1>
+        <ul
+          className="conversation-h"
+          style={{ listStyleType: "none", padding: 0 }}
+        >
+          {this.state.messages.map((message, index) => {
+            return (
+              <li
+                className="message-container"
+                key={index}
+                style={{
+                  margin: "10px 0",
+                  textAlign: "left",
+                  justifyContent: "flex-start",
+                  marginLeft: "25px",
+                }}
+              >
+                <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
+                  {message.sender}
+                </div>
+                {message.text && (
+                  <div
+                    className="msg-text"
+                    style={{
+                      backgroundColor: "#f1f1f1",
+                      borderRadius: "15px",
+                      padding: "10px",
+                      display: "inline-block",
+                      maxWidth: "70%",
+                    }}
+                  >
+                    {message.text}
+                  </div>
+                )}
+                {message.image && (
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      src={message.image}
+                      alt="message"
+                      style={{
+                        borderRadius: "15px",
+                        maxWidth: "200px",
+                        display: "inline-block",
+                      }}
+                    />
+                  </div>
+                )}
+                <div
+                  style={{ color: "gray", fontSize: "12px", marginLeft: "5px" }}
+                >
                   {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
                   {message.timestamp.split("T")[1].slice(0, 5)}
-                </p>
-                <div className="msg-sender">
-                  Sent by : <p>{message.sender}</p>
                 </div>
-                <div className="msg-text">
-                  Saying : <p>{message.text}</p>
-                </div>
-                <img src={message.image} default="img" />
               </li>
             );
           })}

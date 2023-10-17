@@ -14,8 +14,8 @@ function UserPage() {
 
   return (
     <div>
-      <MessageInput userID={userID} />
       <MessageList userID={userID} />
+      <MessageInput userID={userID} />
     </div>
   );
 }

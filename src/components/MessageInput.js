@@ -1,6 +1,12 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import IconButton from "@mui/material/IconButton";
+import SendIcon from "@mui/icons-material/Send";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
+import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 
 const posterURL = process.env.REACT_APP_POSTER_URL;
 
@@ -91,32 +97,38 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="inputs">
-      <input
-        type="text"
+    <div className="inputs" style={{ display: "flex", alignItems: "center" }}>
+      <TextField
+        variant="outlined"
         name="user_id"
-        defaultValue={formData.user_id}
+        value={formData.user_id}
         onChange={handleChange}
-        placeholder="Conversation ID"
+        placeholder="User ID"
+        style={{ marginRight: "8px" }}
       />
-      <input
-        type="text"
+      <TextField
+        variant="outlined"
         name="text"
-        defaultValue={formData.text}
+        value={formData.text}
         onChange={handleChange}
         placeholder="Message"
+        style={{ flex: 1, marginRight: "8px" }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton color="primary" onClick={handleUploadClick}>
+                <InsertPhotoIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
-      <div>{file ? `Selected File: ${file.name}` : "No file selected."}</div>
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-      <button onClick={handleUploadClick}>Select Image</button>
-      <button className="send" onClick={handleSend}>
-        Send
-      </button>
+      <div style={{ display: "none" }}>
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} />
+      </div>
+      <IconButton color="primary" onClick={handleSend}>
+        <SendIcon />
+      </IconButton>
     </div>
   );
 };
