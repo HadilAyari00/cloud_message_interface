@@ -89,9 +89,13 @@ class MessageList extends React.Component {
     element.scrollTop = element.scrollHeight;
   }
   markAsRead = async (conversationId, messageId) => {
+    console.log("Marking message as read...");
+    console.log(conversationId);
+    console.log(messageId);
     try {
       await axios.put(
-        `${posterURL}/conversations/${conversationId}/messages/${messageId}/read`
+        `${posterURL}/conversations/${conversationId}/messages/${messageId}/read`,
+        {"user_id": this.props.userID},
       );
     } catch (error) {
       console.error("Error marking the message as read:", error);
