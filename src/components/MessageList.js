@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 const posterURL = process.env.REACT_APP_POSTER_URL;
 const wsURL = process.env.REACT_APP_WS_URL;
-const READ_DURATION = 10;
+const READ_DURATION = 60 + 8;
 
 const MessageListWrapper = () => {
   const { userID } = useParams();
@@ -32,12 +32,21 @@ class MessageList extends React.Component {
           },
         });
         const data = await response.json();
-        const currentTime = new Date();
+        
+        const d = new Date();
+        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        const currentTime = new Date(utc + (3600000 * '+0'));
+        console.log(currentTime);
 
+        console.log("CURRENT TIME:", currentTime);
         const filteredData = data.filter((message) => {
           const messageTime = new Date(message.timestamp);
           const timeDifferenceInSeconds = (currentTime - messageTime) / 1000;
 
+          console.log("Message:", message.text);
+          console.log("Current time:", currentTime);
+          console.log("Message time:", messageTime);
+          console.log("Time difference:", timeDifferenceInSeconds);
           if (message.read_by.includes(userID)) {
             return timeDifferenceInSeconds <= READ_DURATION;
           } else {
