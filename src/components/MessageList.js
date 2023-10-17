@@ -79,6 +79,7 @@ class MessageList extends React.Component {
       console.log("New message received:", message);
       const data = JSON.parse(message);
       console.log("New message received:", data);
+      this.markAsRead(data.conversation_id, data._id);
       this.setState((prevState) => ({
         messages: [...prevState.messages, data],
       }));
