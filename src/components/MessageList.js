@@ -81,12 +81,15 @@ class MessageList extends React.Component {
   componentDidMount() {
     this.fetchData();
 
-    this.socket = io(
-      "wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io"
-    );
 
+    this.socket = io("wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io");
+
+    //const conversation_ids = [str(1), str(2), str(3), str(4), str(5)];
+    //need to change this to the conversation ids of the user !
+    
     this.socket.on("connect", () => {
       console.log("Connected to socket server.");
+      //this.socket.emit("joinConversations", { conversation_ids: conversation_ids });
     });
 
     this.socket.on("newMessage", (message) => {
