@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,15 +8,38 @@ import {
 } from "react-router-dom";
 import MessageInput from "./components/MessageInput";
 import MessageList from "./components/MessageList";
+import ConversationsList from "./components/ConversationsList";
 import "./App.css";
 
 function UserPage() {
   const { userID } = useParams();
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
   return (
-    <div>
-      <MessageList userID={userID} />
-      <MessageInput userID={userID} />
+    <div style={{ display: "flex" }}>
+      <div style={{ flex: "30%", borderRight: "1px solid gray" }}>
+        <ConversationsList
+          userID={userID}
+          setSelectedConversation={setSelectedConversation}
+          selectedConversation={selectedConversation}
+        />
+      </div>
+      <div style={{ flex: "70%" }}>
+        {selectedConversation ? (
+          <>
+            <MessageList
+              userID={userID}
+              conversationId={selectedConversation}
+            />
+            <MessageInput
+              userID={userID}
+              conversationId={selectedConversation}
+            />
+          </>
+        ) : (
+          <p>Please select a conversation or start a new one.</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 
 const posterURL = process.env.REACT_APP_POSTER_URL;
 
-const MessageInput = () => {
+const MessageInput = (props) => {
   const { userID } = useParams();
   const [formData, setFormData] = useState({
     user_id: "",
@@ -71,7 +71,7 @@ const MessageInput = () => {
             "Content-Type": "application/json",
           };
           await axios.post(
-            `${posterURL}/conversations/652924bdc5faf4a0ad9e9ab0/messages`,
+            `${posterURL}/conversations/${props.conversationId}/messages`,
             formData
           );
         } catch (error) {

@@ -13,9 +13,11 @@ const posterURL = process.env.REACT_APP_POSTER_URL;
 const wsURL = process.env.REACT_APP_WS_URL;
 const READ_DURATION = 60 + 8;
 
-const MessageListWrapper = () => {
+const MessageListWrapper = (props) => {
   const { userID } = useParams();
-  return <MessageList userID={userID} />;
+  const { conversationId } = props;
+
+  return <MessageList userID={userID} conversationId={conversationId} />;
 };
 
 class MessageList extends React.Component {
@@ -24,53 +26,60 @@ class MessageList extends React.Component {
     this.state = {
       messages: [],
     };
+    this.fetchData = this.fetchData.bind(this);
   }
 
-  componentDidMount() {
+  async fetchData() {
     const userID = this.props.userID;
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${receiverURL}/server/history`, {
+    const { conversationId } = this.props;
+    try {
+      console.log("convo ID", conversationId);
+      const response = await fetch(
+        `${receiverURL}/server/conversation/${conversationId}/history`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-        });
-        const data = await response.json();
-
-        const d = new Date();
-        const utc = d.getTime() + d.getTimezoneOffset() * 60000;
-        const currentTime = new Date(utc + 3600000 * "+0");
-        console.log(currentTime);
-
-        console.log("CURRENT TIME:", currentTime);
-        const filteredData = data.filter((message) => {
-          const messageTime = new Date(message.timestamp);
-          const timeDifferenceInSeconds = (currentTime - messageTime) / 1000;
-
-          console.log("Message:", message.text);
-          console.log("Current time:", currentTime);
-          console.log("Message time:", messageTime);
-          console.log("Time difference:", timeDifferenceInSeconds);
-          if (message.read_by.includes(userID)) {
-            return timeDifferenceInSeconds <= READ_DURATION;
-          } else {
-            return !message.read_by.includes(userID);
-          }
-        });
-
-        this.setState({ messages: filteredData });
-        console.log(filteredData);
-
-        for (const message of filteredData) {
-          this.markAsRead(message.conversation_id, message._id);
         }
-      } catch (error) {
-        console.error("Error fetching or parsing messages:", error);
-      }
-    };
+      );
 
-    fetchData();
+      const data = await response.json();
+      console.log("Fetched data:", data);
+      const d = new Date();
+      const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+      const currentTime = new Date(utc + 3600000 * "+0");
+      console.log(currentTime);
+
+      console.log("CURRENT TIME:", currentTime);
+      const filteredData = data.filter((message) => {
+        const messageTime = new Date(message.timestamp);
+        const timeDifferenceInSeconds = (currentTime - messageTime) / 1000;
+
+        console.log("Message:", message.text);
+        console.log("Current time:", currentTime);
+        console.log("Message time:", messageTime);
+        console.log("Time difference:", timeDifferenceInSeconds);
+        if (message.read_by.includes(userID)) {
+          return timeDifferenceInSeconds <= READ_DURATION;
+        } else {
+          return !message.read_by.includes(userID);
+        }
+      });
+
+      this.setState({ messages: filteredData });
+      console.log(filteredData);
+
+      for (const message of filteredData) {
+        this.markAsRead(message.conversation_id, message._id);
+      }
+    } catch (error) {
+      console.error("Error fetching or parsing messages:", error);
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData();
 
     this.socket = io(
       "wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io"
@@ -99,9 +108,12 @@ class MessageList extends React.Component {
     this.socket.disconnect();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const element = document.querySelector(".conversation-h");
     element.scrollTop = element.scrollHeight;
+    if (prevProps.conversationId !== this.props.conversationId) {
+      this.fetchData();
+    }
   }
   markAsRead = async (conversationId, messageId) => {
     console.log("Marking message as read...");
@@ -121,141 +133,84 @@ class MessageList extends React.Component {
   };
 
   render() {
+    const isUserMessage = (sender) => {
+      return sender === this.props.userID;
+    };
+
     return (
       <div>
-        <h1 className="conversation">Message History</h1>
+        <h1 className="conversation">
+          Message History - {this.props.conversationId}
+        </h1>
         <ul
           className="conversation-h"
-          style={{ listStyleType: "none", padding: 0 }}
-        >
-          {this.state.messages.map((message, index) => {
-            return (
-              <div key={index}>
-                <div style={{ fontWeight: "bold", margin: "10px 0" }}>
-                  {message.sender}
-                </div>
-                <li
-                  className="message-container"
-                  style={{
-                    border: "1px solid #ccc",
-                    borderRadius: "15px",
-                    margin: "5px 0",
-                    padding: "10px",
-                  }}
-                >
-                  <div
-                    className="msg-text"
-                    style={{
-                      backgroundColor: "#f1f1f1",
-                      borderRadius: "10px",
-                      padding: "5px",
-                    }}
-                  >
-                    {message.text}
-                  </div>
-                  <p
-                    className="msg-time"
-                    style={{
-                      color: "gray",
-                      textAlign: "right",
-                      margin: "5px 0",
-                    }}
-                  >
-                    {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
-                    {message.timestamp.split("T")[1].slice(0, 5)}
-                  </p>
-                </li>
-                {message.image && (
-                  <li
-                    className="message-image-container"
-                    style={{
-                      border: "1px solid #ccc",
-                      borderRadius: "15px",
-                      margin: "5px 0",
-                      padding: "10px",
-                    }}
-                  >
-                    <img
-                      src={message.image}
-                      alt="message"
-                      style={{ borderRadius: "10px", maxWidth: "200px" }}
-                    />
-                    <p
-                      className="msg-time"
-                      style={{
-                        color: "gray",
-                        textAlign: "right",
-                        margin: "5px 0",
-                      }}
-                    >
-                      {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
-                      {message.timestamp.split("T")[1].slice(0, 5)}
-                    </p>
-                  </li>
-                )}
-              </div>
-            );
-          })}
-        </ul>
-      </div>
-    );
-  }
-  render() {
-    return (
-      <div>
-        <h1 className="conversation">Message History</h1>
-        <ul
-          className="conversation-h"
-          style={{ listStyleType: "none", padding: 0 }}
+          style={{
+            listStyleType: "none",
+            padding: 0,
+            overflowY: "auto",
+            maxHeight: "400px",
+          }}
         >
           {this.state.messages.map((message, index) => {
             return (
               <li
-                className="message-container"
                 key={index}
                 style={{
+                  display: "flex",
+                  justifyContent: isUserMessage(message.sender)
+                    ? "flex-end"
+                    : "flex-start",
                   margin: "10px 0",
-                  textAlign: "left",
-                  justifyContent: "flex-start",
-                  marginLeft: "25px",
+                  alignItems: "center",
                 }}
               >
-                <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-                  {message.sender}
-                </div>
-                {message.text && (
-                  <div
-                    className="msg-text"
+                {!isUserMessage(message.sender) && (
+                  <Typography
+                    variant="body2"
+                    style={{ marginRight: "10px", fontWeight: "bold" }}
+                  >
+                    {message.sender}
+                  </Typography>
+                )}
+                <Card
+                  style={{
+                    maxWidth: "70%",
+                    borderRadius: "15px",
+                    backgroundColor: isUserMessage(message.sender)
+                      ? "#007BFF"
+                      : "#f1f1f1",
+                  }}
+                >
+                  <CardContent
                     style={{
-                      backgroundColor: "#f1f1f1",
-                      borderRadius: "15px",
-                      padding: "10px",
-                      display: "inline-block",
-                      maxWidth: "70%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: isUserMessage(message.sender)
+                        ? "flex-end"
+                        : "flex-start",
+                      color: isUserMessage(message.sender) ? "white" : "black",
                     }}
                   >
-                    {message.text}
-                  </div>
-                )}
-                {message.image && (
-                  <div style={{ marginTop: "10px" }}>
-                    <img
-                      src={message.image}
-                      alt="message"
+                    <Typography
+                      variant="body1"
+                      style={{ wordBreak: "break-word" }}
+                    >
+                      {message.text}
+                    </Typography>
+                    <Typography
+                      variant="body2"
                       style={{
-                        borderRadius: "15px",
-                        maxWidth: "200px",
-                        display: "inline-block",
+                        marginTop: "8px",
+                        color: isUserMessage(message.sender)
+                          ? "rgba(255, 255, 255, 0.6)"
+                          : "gray",
                       }}
-                    />
-                  </div>
-                )}
-                <div
-                  style={{ color: "gray", fontSize: "12px", marginLeft: "5px" }}
-                >
-                  {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
-                  {message.timestamp.split("T")[1].slice(0, 5)}
-                </div>
+                    >
+                      {message.timestamp.split("T")[0].slice(5, 10)} :{" "}
+                      {message.timestamp.split("T")[1].slice(0, 5)}
+                    </Typography>
+                  </CardContent>
+                </Card>
               </li>
             );
           })}
