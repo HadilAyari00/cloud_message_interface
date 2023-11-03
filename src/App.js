@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,6 +8,8 @@ import {
 import MessageInput from "./components/MessageInput";
 import MessageList from "./components/MessageList";
 import ConversationsList from "./components/ConversationsList";
+import Stories from "./components/stories";
+
 import "./App.css";
 
 function UserPage() {
@@ -18,6 +19,8 @@ function UserPage() {
   return (
     <div style={{ display: "flex" }}>
       <div style={{ flex: "30%", borderRight: "1px solid gray" }}>
+        <Stories userID={userID} />
+
         <ConversationsList
           userID={userID}
           setSelectedConversation={setSelectedConversation}
