@@ -81,12 +81,13 @@ class MessageList extends React.Component {
   componentDidMount() {
     this.fetchData();
 
-
-    this.socket = io("wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io");
+    this.socket = io(
+      "wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io"
+    );
 
     //const conversation_ids = [str(1), str(2), str(3), str(4), str(5)];
     //need to change this to the conversation ids of the user !
-    
+
     this.socket.on("connect", () => {
       console.log("Connected to socket server.");
       //this.socket.emit("joinConversations", { conversation_ids: conversation_ids });
@@ -151,7 +152,7 @@ class MessageList extends React.Component {
             listStyleType: "none",
             padding: 0,
             overflowY: "auto",
-            maxHeight: "400px",
+            maxHeight: "800px",
           }}
         >
           {this.state.messages.map((message, index) => {
@@ -200,6 +201,19 @@ class MessageList extends React.Component {
                     >
                       {message.text}
                     </Typography>
+
+                    {message.image && (
+                      <img
+                        src={message.image}
+                        alt="message-img"
+                        style={{
+                          maxWidth: "100%",
+                          borderRadius: "10px",
+                          marginTop: "8px",
+                        }}
+                      />
+                    )}
+
                     <Typography
                       variant="body2"
                       style={{

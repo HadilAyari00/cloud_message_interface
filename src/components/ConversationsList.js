@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 const posterURL = process.env.REACT_APP_POSTER_URL;
+const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 
 const ConversationsList = ({
   userID,
@@ -8,8 +9,10 @@ const ConversationsList = ({
   selectedConversation,
 }) => {
   const [conversations, setConversations] = useState([]);
+  const [conversationsDetails, setConversationsDetails] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [participantIDs, setParticipantIDs] = useState("");
+  const [participantIDs, setParticipantIDs] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     axios
@@ -17,16 +20,33 @@ const ConversationsList = ({
       .then((response) => {
         setConversations(response.data.conversations);
         console.log("convos ", response.data);
+        return Promise.all(
+          response.data.conversations.map((convoID) =>
+            axios.get(`${receiverURL}/server/conversation/${convoID}`)
+          )
+        );
+      })
+      .then((responses) => {
+        const details = responses.map((response) => response.data);
+        setConversationsDetails(details);
       })
       .catch((error) => {
         console.error("Error fetching conversations:", error);
       });
+    axios
+      .get(`${posterURL}/users`)
+      .then((response) => {
+        console.log("users ", response.data);
+        setUsers(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
   }, [userID]);
 
   const createConversation = () => {
-    const participantsArray = participantIDs
-      .split(",")
-      .map((id) => ({ user_id: id.trim() }));
+    const participantsArray = participantIDs.map((id) => ({ user_id: id }));
+
     participantsArray.push({ user_id: userID });
 
     axios
@@ -38,7 +58,7 @@ const ConversationsList = ({
       .then((response) => {
         setConversations([...conversations, response.data.id]);
         setShowForm(false);
-        setParticipantIDs("");
+        setParticipantIDs([]);
       })
       .catch((error) => {
         console.error("Error creating conversation:", error);
@@ -47,23 +67,38 @@ const ConversationsList = ({
 
   const handleSelectConversation = (conversationID) => {
     setSelectedConversation(conversationID);
-    // Here you can also set any state you need for the selected conversation,
-    // or make API calls to get the conversation details.
   };
 
   return (
     <div>
       <h2>Conversations</h2>
       {showForm && (
-        <div>
-          <input
-            type="text"
-            placeholder="Enter user IDs, comma separated"
-            value={participantIDs}
-            onChange={(e) => setParticipantIDs(e.target.value)}
-          />
-          <button onClick={createConversation}>Create</button>
-        </div>
+        <>
+          <div>
+            {users.map((user) => (
+              <div key={user.user_id}>
+                <label>
+                  <input
+                    type="checkbox"
+                    value={user.user_id}
+                    checked={participantIDs.includes(user.user_id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setParticipantIDs([...participantIDs, e.target.value]);
+                      } else {
+                        setParticipantIDs(
+                          participantIDs.filter((id) => id !== e.target.value)
+                        );
+                      }
+                    }}
+                  />
+                  {user.user_id}
+                </label>
+              </div>
+            ))}
+          </div>
+          <button onClick={createConversation}>Create Conversation</button>
+        </>
       )}
       <button
         style={{
@@ -77,43 +112,48 @@ const ConversationsList = ({
         {showForm ? "Cancel" : "New Conversation"}
       </button>
       <ul style={{ listStyleType: "none", padding: 0 }}>
-        {Array.isArray(conversations)
-          ? conversations.map((conversationID, index) => (
-              <li
-                key={index}
-                style={{
-                  padding: "10px",
-                  cursor: "pointer",
-                  backgroundColor:
-                    selectedConversation === conversationID
-                      ? "lightgrey"
-                      : "white",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "5px",
-                }}
-                onClick={() => handleSelectConversation(conversationID)}
-              >
-                {/* Placeholder for chat icon */}
-                <div
+        {conversationsDetails.length > 0
+          ? conversationsDetails.map((conversation, index) => {
+              const participantNames = conversation.participants
+                .filter((participantID) => participantID !== userID)
+                .join(", ");
+
+              return (
+                <li
+                  key={conversation._id}
                   style={{
-                    marginRight: "10px",
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: "lightgray",
+                    padding: "10px",
+                    cursor: "pointer",
+                    backgroundColor:
+                      selectedConversation === conversation._id
+                        ? "lightgrey"
+                        : "white",
+                    border: "1px solid #ccc",
+                    borderRadius: "5px",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "50%",
+                    marginBottom: "5px",
                   }}
+                  onClick={() => handleSelectConversation(conversation._id)}
                 >
-                  🗨️
-                </div>
-                {conversationID}
-              </li>
-            ))
+                  <div
+                    style={{
+                      marginRight: "10px",
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "lightgray",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                    }}
+                  >
+                    🗨️
+                  </div>
+                  {participantNames}
+                </li>
+              );
+            })
           : "Loading or no conversations available."}
       </ul>
     </div>

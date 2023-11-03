@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
+import CancelIcon from "@mui/icons-material/Cancel";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
@@ -29,13 +30,23 @@ const MessageInput = (props) => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    e.target.blur();
   };
 
   const handleUploadClick = () => {
     fileInputRef.current.click();
   };
 
+  const handleRemoveFile = () => {
+    setFile(null);
+  };
+
   const handleSend = async () => {
+    if (!formData.text && !file) {
+      console.log("Nothing to send.");
+      return;
+    }
+
     try {
       let isFileUploaded = false;
       let isFormSubmitted = false;
@@ -84,30 +95,40 @@ const MessageInput = (props) => {
 
       if (isFileUploaded && isFormSubmitted) {
         console.log("Both file and form submitted successfully.");
-        setFile(null);
+        setFormData((prevState) => ({ ...prevState, text: "", url: "" }));
       } else if (isFileUploaded) {
         console.log("File uploaded successfully.");
-        setFile(null);
+        setFormData((prevState) => ({ ...prevState, text: "", url: "" }));
       } else if (isFormSubmitted) {
         console.log("Form submitted successfully.");
       } else {
         console.log("Nothing to send.");
+      }
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
       }
     } catch (error) {
       console.log("Error in handleSend function:", error);
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (document.activeElement !== fileInputRef.current) {
+      handleSend();
+      setFormData((prevState) => ({ ...prevState, text: "", url: "" }));
+      fileInputRef.current.value = null;
+    }
+  };
+
   return (
-    <div className="inputs" style={{ display: "flex", alignItems: "center" }}>
-      <TextField
-        variant="outlined"
-        name="user_id"
-        value={formData.user_id}
-        onChange={handleChange}
-        placeholder="User ID"
-        style={{ marginRight: "8px" }}
-      />
+    <form
+      onSubmit={handleSubmit}
+      className="inputs"
+      style={{ display: "flex", alignItems: "center", width: "100%" }}
+    >
       <TextField
         variant="outlined"
         name="text"
@@ -125,13 +146,35 @@ const MessageInput = (props) => {
           ),
         }}
       />
+      {file && (
+        <div style={{ position: "relative", marginRight: "8px" }}>
+          <img
+            src={URL.createObjectURL(file)}
+            alt="Selected"
+            style={{
+              width: "40px",
+              height: "40px",
+              objectFit: "cover",
+              borderRadius: "5px",
+            }}
+          />
+          <IconButton
+            color="secondary"
+            size="small"
+            style={{ position: "absolute", right: "-5px", top: "-5px" }}
+            onClick={handleRemoveFile}
+          >
+            <CancelIcon />
+          </IconButton>
+        </div>
+      )}
       <div style={{ display: "none" }}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} />
       </div>
-      <IconButton color="primary" onClick={handleSend}>
+      <IconButton color="primary" type="submit">
         <SendIcon />
       </IconButton>
-    </div>
+    </form>
   );
 };
 
