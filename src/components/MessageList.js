@@ -53,6 +53,9 @@ class MessageList extends React.Component {
 
       console.log("CURRENT TIME:", currentTime);
       const filteredData = data.filter((message) => {
+        if (!message.smoke) {
+          return true;
+        }
         const messageTime = new Date(message.timestamp);
         const timeDifferenceInSeconds = (currentTime - messageTime) / 1000;
 

@@ -5,7 +5,7 @@ const receiverURL = process.env.REACT_APP_RECEIVER_URL;
 const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const Stories = ({ userID }) => {
-  const [stories, setStories] = useState({}); // Instead of an array, it's now an object
+  const [stories, setStories] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [showAddStoryModal, setShowAddStoryModal] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
@@ -14,6 +14,7 @@ const Stories = ({ userID }) => {
   const [file, setFile] = useState(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [storyDuration, setStoryDuration] = useState(24); // default to 24 hours
 
   useEffect(() => {
     fetch(`${receiverURL}/server/users/${userID}/stories/viewable`)
@@ -55,13 +56,13 @@ const Stories = ({ userID }) => {
     const file = e.target.files[0];
     if (!file) return;
     console.log("Selected file:", file);
-    let signed_url; // Declare the variable here
+    let signed_url;
     try {
       const response = await axios.get(`${posterURL}/upload-url`, {
         params: { content_type: file.type },
       });
       console.log("Response from server:", response.data);
-      signed_url = response.data.signed_url; // Update the variable here
+      signed_url = response.data.signed_url;
 
       const headers = {
         "Content-Type": file.type,
@@ -86,11 +87,10 @@ const Stories = ({ userID }) => {
       user_id: userID,
       image_url: file,
       viewers: viewerList,
-      duration: 24,
+      duration: storyDuration,
     });
     setShowAddStoryModal(false);
 
-    // Fetch new stories
     fetch(`${receiverURL}/server/users/${userID}/stories/viewable`)
       .then((response) => response.json())
       .then((data) => {
@@ -113,7 +113,7 @@ const Stories = ({ userID }) => {
           groupedStories[story.user_id].push(story);
         });
 
-        console.log("Updated Grouped Stories:", groupedStories); // Log updated stories here
+        console.log("Updated Grouped Stories:", groupedStories);
         setStories(groupedStories);
       })
       .catch((error) =>
@@ -132,7 +132,6 @@ const Stories = ({ userID }) => {
       <div
         style={{ display: "flex", overflowX: "scroll", alignItems: "center" }}
       >
-        {/* Add story button */}
         <div style={{ marginRight: "10px" }}>
           <label style={{ cursor: "pointer" }}>
             <input
@@ -155,11 +154,10 @@ const Stories = ({ userID }) => {
             </div>
           </label>
         </div>
-        {/* List of stories */}
         {Object.keys(stories).map((userId) => (
           <div
             key={userId}
-            onClick={() => openStory(userId, 0)} // Open the first story of this user
+            onClick={() => openStory(userId, 0)}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -342,6 +340,18 @@ const Stories = ({ userID }) => {
                   </div>
                 )
             )}
+          </div>
+          <div style={{ margin: "10px 0" }}>
+            <label htmlFor="storyDuration" style={{ marginRight: "10px" }}>
+              Duration in hours:
+            </label>
+            <input
+              id="storyDuration"
+              type="number"
+              value={storyDuration}
+              onChange={(e) => setStoryDuration(e.target.value)}
+              style={{ marginRight: "10px" }}
+            />
           </div>
           <button onClick={handlePostStory}>Post Story</button>
         </div>

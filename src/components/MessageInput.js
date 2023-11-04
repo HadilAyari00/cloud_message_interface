@@ -8,11 +8,15 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const posterURL = process.env.REACT_APP_POSTER_URL;
 
 const MessageInput = (props) => {
   const { userID } = useParams();
+  const [smoke, setSmoke] = useState(true);
+
   const [formData, setFormData] = useState({
     user_id: "",
     text: "",
@@ -50,6 +54,7 @@ const MessageInput = (props) => {
     try {
       let isFileUploaded = false;
       let isFormSubmitted = false;
+      formData.smoke = smoke;
 
       if (file) {
         try {
@@ -78,12 +83,17 @@ const MessageInput = (props) => {
       }
       if (formData.user_id || formData.text) {
         try {
+          const messageData = {
+            ...formData,
+            smoke: smoke,
+          };
           const headers = {
             "Content-Type": "application/json",
           };
           await axios.post(
             `${posterURL}/conversations/${props.conversationId}/messages`,
-            formData
+            messageData,
+            { headers }
           );
         } catch (error) {
           console.log("Error while submitting the form: ", error);
@@ -129,6 +139,16 @@ const MessageInput = (props) => {
       className="inputs"
       style={{ display: "flex", alignItems: "center", width: "100%" }}
     >
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={!smoke}
+            onChange={(e) => setSmoke(!e.target.checked)}
+            name="smoke"
+          />
+        }
+        label="Save"
+      />
       <TextField
         variant="outlined"
         name="text"
