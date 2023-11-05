@@ -88,8 +88,9 @@ class MessageList extends React.Component {
       "wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io"
     );
 
-    //const conversation_ids = [str(1), str(2), str(3), str(4), str(5)];
-    //need to change this to the conversation ids of the user !
+    const conversation_ids = [this.props.conversationId];
+    console.log("Conversation IDs:");
+    console.log(conversation_ids);
 
     this.socket.on("connect", () => {
       console.log("Connected to socket server.");
