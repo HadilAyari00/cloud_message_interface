@@ -93,7 +93,7 @@ class MessageList extends React.Component {
 
     this.socket.on("connect", () => {
       console.log("Connected to socket server.");
-      //this.socket.emit("joinConversations", { conversation_ids: conversation_ids });
+      this.socket.emit("joinConversations", { conversation_ids: conversation_ids });
     });
 
     this.socket.on("newMessage", (message) => {
