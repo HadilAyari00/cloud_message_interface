@@ -88,13 +88,10 @@ class MessageList extends React.Component {
       "wss://app-7b3a3c98-565a-4b75-9e80-683f4e59b229.cleverapps.io"
     );
 
-    const conversation_ids = [this.props.conversationId];
-    console.log("Conversation IDs:");
-    console.log(conversation_ids);
-
     this.socket.on("connect", () => {
       console.log("Connected to socket server.");
-      this.socket.emit("joinConversations", { conversation_ids: conversation_ids });
+      console.log("Joining conversation:", this.props.conversationId);
+      this.socket.emit("joinConversations", {conversation_ids: [this.props.conversationId] });
     });
 
     this.socket.on("newMessage", (message) => {
@@ -121,6 +118,10 @@ class MessageList extends React.Component {
     element.scrollTop = element.scrollHeight;
     if (prevProps.conversationId !== this.props.conversationId) {
       this.fetchData();
+      console.log("Leaving conversation:", prevProps.conversationId);
+      this.socket.emit("leaveConversations", {conversation_ids: [prevProps.conversationId] });
+      console.log("Joining conversation:", this.props.conversationId);
+      this.socket.emit("joinConversations", {conversation_ids: [this.props.conversationId] });
     }
   }
   markAsRead = async (conversationId, messageId) => {
