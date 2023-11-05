@@ -65,6 +65,22 @@ const ConversationsList = ({
         }
 
         setRefreshConversations(!refreshConversations);
+        const updatedParticipants = newConversation.participants.map(
+          (participant) => ({
+            ...participant,
+            user_id: String(participant.user_id),
+          })
+        );
+
+        setConversationsDetails((prevConversationsDetails) => [
+          ...prevConversationsDetails,
+          { ...newConversation, participants: updatedParticipants },
+        ]);
+
+        setConversations((prevConversations) => [
+          ...prevConversations,
+          newConversation._id,
+        ]);
 
         setShowForm(false);
         setParticipantIDs([]);
